@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Calendar with Map</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+</head>
+<body>
+    <div class="container">
+        <button id="add-event-btn">Add Event</button>
+        <div id="event-form-container">
+            <h2 id="form-title">Add Event</h2>
+            <form id="event-form">
+                <label for="event-title">Title:</label>
+                <input type="text" id="event-title" required>
+                <label for="event-date">Date:</label>
+                <input type="date" id="event-date" required>
+                <label for="event-type">Type:</label>
+                <select id="event-type" required>
+                    <option value="Concert">Concert</option>
+                    <option value="Exhibition">Exhibition</option>
+                    <option value="Festival">Festival</option>
+                    <option value="Marathon">Marathon</option>
+                    <option value="Movie">Movie</option>
+                </select>
+                <label for="event-description">Description:</label>
+                <textarea id="event-description" rows="4" required></textarea>
+                <label for="event-location">Location (latitude,longitude):</label>
+                <input type="text" id="event-location" placeholder="e.g., 48.858844,2.294351">
+                <button type="submit">Save Event</button>
+                <button type="button" id="cancel-btn">Cancel</button>
+            </form>
+        </div>
+
+        <div class="map-buttons">
+            <button id="current-location-btn">Show My Location</button>
+            <button id="open-google-maps-btn">Open in Google Maps</button>
+            <button id="show-route-btn">Show Route</button>
+        </div>
+
+        <div id="map"></div>
+
+        <div class="search-filters">
+            <input type="text" id="search" placeholder="Search events...">
+            <label for="date-filter">Filter by date:</label>
+            <select id="date-filter">
+                <option value="all">All dates</option>
+            </select>
+            <label for="type-filter">Filter by type:</label>
+            <select id="type-filter">
+                <option value="all">All types</option>
+                <option value="Concert">Concert</option>
+                <option value="Exhibition">Exhibition</option>
+                <option value="Festival">Festival</option>
+                <option value="Marathon">Marathon</option>
+                <option value="Movie">Movie</option>
+            </select>
+        </div>
+
+        <div id="events-list"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
