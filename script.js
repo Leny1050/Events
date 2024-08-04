@@ -20,42 +20,35 @@ document.addEventListener("DOMContentLoaded", function() {
     let geocoder;
     let routeControl;
 
-    // Инициализация карты
     function initMap() {
-        map = L.map('map').setView([0, 0], 2);  // Начальная позиция и уровень зума
+        map = L.map('map').setView([0, 0], 2);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
         geocoder = L.Control.Geocoder.nominatim();
-
-        // Добавляем поиск на карту
         L.Control.geocoder().addTo(map);
 
-        // Добавляем обработчик событий для карты
         map.on('click', function(e) {
             const { lat, lng } = e.latlng;
 
-            // Удаление предыдущего маркера
             if (currentMarker) {
                 map.removeLayer(currentMarker);
             }
 
-            // Добавление нового маркера
             currentMarker = L.marker([lat, lng]).addTo(map)
                 .bindPopup(`Location: ${lat.toFixed(5)}, ${lng.toFixed(5)}`)
                 .openPopup();
-            
+
             eventLocationInput.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
             markers.push(currentMarker);
         });
     }
 
-    // Показать текущее местоположение
     function showCurrentLocation() {
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(position =>```javascript
+            navigator.geolocation.getCurrentPosition(position => {
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
 
@@ -76,11 +69,6 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             alert("Geolocation is not supported by this browser");
         }
-    }
-
-    // Показать или скрыть форму событий
-    function toggleEventForm() {
-        eventFormContainer.style.display = eventFormContainer.style.display === "none" ? "block" : "none";
     }
 
     // Сохранить события в localStorage
@@ -182,6 +170,11 @@ document.addEventListener("DOMContentLoaded", function() {
         currentMarker = L.marker([lat, lng]).addTo(map)
             .bindPopup(`Location: ${lat.toFixed(5)}, ${lng.toFixed(5)}`)
             .openPopup();
+    }
+
+    // Показать или скрыть форму событий
+    function toggleEventForm() {
+        eventFormContainer.style.display = eventFormContainer.style.display === "none" ? "block" : "none";
     }
 
     addEventBtn.addEventListener("click", () => {
