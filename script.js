@@ -62,6 +62,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 L.marker([latitude, longitude]).addTo(map)
                     .bindPopup('You are here')
                     .openPopup();
+            }, function(error) {
+                console.error('Error getting current location:', error);
+                alert('Could not get your location.');
             });
         } else {
             alert('Geolocation is not supported by this browser.');
@@ -86,13 +89,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 routeControl.remove();
             }
 
-            const route = L.Routing.control({
+            routeControl = L.Routing.control({
                 waypoints: markers.map(marker => marker.getLatLng()),
                 createMarker: function() { return null; },
                 routeWhileDragging: true
             }).addTo(map);
-
-            routeControl = route;
         } else {
             alert('Please add at least two markers to show the route.');
         }
