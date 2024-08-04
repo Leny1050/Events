@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
-    const events = [];
+    let events = JSON.parse(localStorage.getItem("events")) || [];
     const calendar = document.getElementById("events-list");
     const searchInput = document.getElementById("search");
     const dateFilter = document.getElementById("date-filter");
@@ -73,6 +73,10 @@ document.addEventListener("DOMContentLoaded", function() {
         eventFormContainer.style.display = eventFormContainer.style.display === 'none' ? 'block' : 'none';
     }
 
+    function saveEvents() {
+        localStorage.setItem("events", JSON.stringify(events));
+    }
+
     function displayEvents(events) {
         calendar.innerHTML = "";
         events.forEach(event => {
@@ -111,6 +115,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const index = events.findIndex(event => event.id === id);
         if (index !== -1) {
             events.splice(index, 1);
+            saveEvents();
             displayEvents(events);
         }
     }
@@ -129,6 +134,7 @@ document.addEventListener("DOMContentLoaded", function() {
             event.type = type;
             event.description = description;
             event.location = location;
+            saveEvents();
             displayEvents(events);
         }
         toggleEventForm();
@@ -151,6 +157,7 @@ document.addEventListener("DOMContentLoaded", function() {
         };
 
         events.push(newEvent);
+        saveEvents();
         displayEvents(events);
         toggleEventForm();
     }
@@ -228,4 +235,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Инициализация карты
     initMap();
+
+    // Отображение событий при загрузке страницы
+    displayEvents(events);
 });
+
