@@ -29,7 +29,7 @@
                 <label for="event-description">Description:</label>
                 <textarea id="event-description" required></textarea>
                 <label for="event-location">Location (lat,lng):</label>
-                <input type="text" id="event-location" required>
+                <input type="text" id="event-location" readonly>
                 <button type="submit">Save Event</button>
                 <button type="button" id="cancel-btn">Cancel</button>
                 <button type="button" id="open-google-maps-btn">Open in Google Maps</button>
@@ -62,6 +62,7 @@
         </section>
     </main>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
