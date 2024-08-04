@@ -1,6 +1,7 @@
 /* styles.css */
 body {
     font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
     margin: 0;
     padding: 0;
 }
@@ -10,10 +11,18 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 header {
     text-align: center;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 0;
+    width: 100%;
+    border-radius: 5px;
+    margin-bottom: 20px;
 }
 
 #controls {
@@ -26,6 +35,19 @@ header {
 #controls input, #controls select, #controls button {
     margin: 5px;
     padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+#controls button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#controls button:hover {
+    background-color: #45a049;
 }
 
 #events-list {
@@ -38,6 +60,8 @@ header {
     padding: 15px;
     margin: 10px 0;
     border-radius: 5px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .event-buttons {
@@ -47,12 +71,30 @@ header {
 
 .event-buttons button {
     margin-left: 10px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.event-buttons button.edit-btn {
+    background-color: #4CAF50;
+}
+
+.event-buttons button:hover {
+    opacity: 0.8;
 }
 
 #event-form-container {
     width: 100%;
     max-width: 800px;
     margin-top: 20px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 #event-form input, #event-form select, #event-form textarea, #event-form button {
@@ -60,6 +102,8 @@ header {
     width: 100%;
     margin: 10px 0;
     padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
 }
 
 .map-controls {
