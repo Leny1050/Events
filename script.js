@@ -13,12 +13,15 @@ document.addEventListener("DOMContentLoaded", function() {
     const openGoogleMapsBtn = document.getElementById("open-google-maps-btn");
     const showRouteBtn = document.getElementById("show-route-btn");
     const currentLocationBtn = document.getElementById("current-location-btn");
+    const newsContainer = document.getElementById("news-container");
+    const newsList = document.getElementById("news-list");
     let editEventId = null;
     let map;
     let currentMarker = null;
     let markers = [];
     let geocoder;
     let routeControl;
+    const newsApiKey = '6ff76f15ddcd47168df8629e9c6e4164';
 
     function initMap() {
         map = L.map('map').setView([0, 0], 2);
@@ -68,18 +71,15 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         } else {
             alert("Geolocation is not supported by this browser");
+       ### Продолжение JavaScript
+
+```javascript
         }
     }
 
-    // Сохранить события в localStorage
-    function saveEvents() {
-        localStorage.setItem("events", JSON.stringify(events));
-    }
-
-    // Отобразить события
-    function displayEvents(events) {
+    function displayEvents(eventsToDisplay) {
         calendar.innerHTML = "";
-        events.forEach(event => {
+        eventsToDisplay.forEach(event => {
             const eventElement = document.createElement("div");
             eventElement.classList.add("event");
             eventElement.innerHTML = `
@@ -87,126 +87,139 @@ document.addEventListener("DOMContentLoaded", function() {
                 <p>Date: ${event.date}</p>
                 <p>Type: ${event.type}</p>
                 <p>${event.description}</p>
-                <p>Location: <a href="#" class="location-link" data-lat="${event.location.split(',')[0]}" data-lng="${event.location.split(',')[1]}">${event.location}</a></p>
+                <p>Location: <a href="https://www.google.com/maps?q=${event.lat},${event.lng}" target="_blank">${event.lat}, ${event.lng}</a></p>
                 <div class="event-buttons">
-                    <button class="edit-btn" data-id="${event.id}">Edit</button>
-                    <button class="delete-btn" data-id="${event.id}">Delete</button>
+                    <button onclick="editEvent(${event.id})">Edit</button>
+                    <button onclick="deleteEvent(${event.id})">Delete</button>
                 </div>
             `;
             calendar.appendChild(eventElement);
         });
 
-        document.querySelectorAll(".delete-btn").forEach(btn => {
-            btn.addEventListener("click", deleteEvent);
-        });
-
-        document.querySelectorAll(".edit-btn").forEach(btn => {
-            btn.addEventListener("click", editEvent);
-        });
-
-        document.querySelectorAll(".location-link").forEach(link => {
-            link.addEventListener("click", showEventOnMap);
+        // Update date filter options
+        const dates = [...new Set(events.map(event => event.date))];
+        dateFilter.innerHTML = '<option value="all">All</option>';
+        dates.forEach(date => {
+            dateFilter.innerHTML += `<option value="${date}">${date}</option>`;
         });
     }
 
     function addEvent(event) {
         event.preventDefault();
-        const newEvent = {
-            id: editEventId || Date.now(),
-            title: eventForm["event-title"].value,
-            date: eventForm["event-date"].value,
-            type: eventForm["event-type"].value,
-            description: eventForm["event-description"].value,
-            location: eventForm["event-location"].value,
-        };
 
-        if (editEventId) {
-            events = events.map(ev => ev.id === editEventId ? newEvent : ev);
+        const title = document.getElementById("event-title").value;
+        const date = document.getElementById("event-date").value;
+        const type = document.getElementById("event-type").value;
+        const description = document.getElementById("event-description").value;
+        const location = document.getElementById("event-location").value.split(',').map(coord => coord.trim());
+
+        if (editEventId !== null) {
+            // Editing an existing event
+            const eventIndex = events.findIndex(e => e.id === editEventId);
+            events[eventIndex] = {
+                id: editEventId,
+                title,
+                date,
+                type,
+                description,
+                lat: location[0],
+                lng: location[1]
+            };
             editEventId = null;
         } else {
-            events.push(newEvent);
+            // Adding a new event
+            events.push({
+                id: Date.now(),
+                title,
+                date,
+                type,
+                description,
+                lat: location[0],
+                lng: location[1]
+            });
         }
 
-        saveEvents();
+        localStorage.setItem("events", JSON.stringify(events));
         displayEvents(events);
-        eventForm.reset();
-        toggleEventForm();
+        eventFormContainer.style.display = "none";
     }
 
-    function deleteEvent(event) {
-        const eventId = parseInt(event.target.dataset.id, 10);
-        events = events.filter(ev => ev.id !== eventId);
-        saveEvents();
+    function editEvent(id) {
+        const event = events.find(e => e.id === id);
+        document.getElementById("event-title").value = event.title;
+        document.getElementById("event-date").value = event.date;
+        document.getElementById("event-type").value = event.type;
+        document.getElementById("event-description").value = event.description;
+        document.getElementById("event-location").value = `${event.lat}, ${event.lng}`;
+        formTitle.textContent = "Edit Event";
+        eventFormContainer.style.display = "block";
+        editEventId = id;
+    }
+
+    function deleteEvent(id) {
+        events = events.filter(event => event.id !== id);
+        localStorage.setItem("events", JSON.stringify(events));
         displayEvents(events);
     }
 
-    function editEvent(event) {
-        const eventId = parseInt(event.target.dataset.id, 10);
-        const eventToEdit = events.find(ev => ev.id === eventId);
-
-        if (eventToEdit) {
-            formTitle.textContent = "Edit Event";
-            eventForm["event-title"].value = eventToEdit.title;
-            eventForm["event-date"].value = eventToEdit.date;
-            eventForm["event-type"].value = eventToEdit.type;
-            eventForm["event-description"].value = eventToEdit.description;
-            eventForm["event-location"].value = eventToEdit.location;
-
-            editEventId = eventToEdit.id;
-            toggleEventForm();
-        }
+    function fetchNews() {
+        fetch(`https://newsapi.org/v2/everything?q=events&apiKey=${newsApiKey}`)
+            .then(response => response.json())
+            .then(data => {
+                const articles = data.articles;
+                newsList.innerHTML = "";
+                articles.forEach(article => {
+                    const newsItem = document.createElement("div");
+                    newsItem.classList.add("news-item");
+                    newsItem.innerHTML = `
+                        <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
+                        <p>${article.description}</p>
+                        <p><small>Source: ${article.source.name}</small></p>
+                    `;
+                    newsList.appendChild(newsItem);
+                });
+            })
+            .catch(error => console.error('Error fetching news:', error));
     }
 
-    function showEventOnMap(event) {
-        event.preventDefault();
-        const lat = parseFloat(event.target.dataset.lat);
-        const lng = parseFloat(event.target.dataset.lng);
-        map.setView([lat, lng], 13);
-
-        if (currentMarker) {
-            map.removeLayer(currentMarker);
-        }
-
-        currentMarker = L.marker([lat, lng]).addTo(map)
-            .bindPopup(`Location: ${lat.toFixed(5)}, ${lng.toFixed(5)}`)
-            .openPopup();
-    }
-
-    // Показать или скрыть форму событий
-    function toggleEventForm() {
-        eventFormContainer.style.display = eventFormContainer.style.display === "none" ? "block" : "none";
-    }
-
-    addEventBtn.addEventListener("click", () => {
-        formTitle.textContent = "Add Event";
-        eventForm.reset();
-        toggleEventForm();
-    });
-
-    cancelBtn.addEventListener("click", toggleEventForm);
-    eventForm.addEventListener("submit", addEvent);
-    openGoogleMapsBtn.addEventListener("click", () => {
-        const location = eventForm["event-location"].value;
-        window.open(`https://www.google.com/maps/search/?api=1&query=${location}`, '_blank');
-    });
-    showRouteBtn.addEventListener("click", () => {
-        const location = eventForm["event-location"].value.split(',');
-        const lat = parseFloat(location[0]);
-        const lng = parseFloat(location[1]);
-
+    function showRoute() {
         if (routeControl) {
             map.removeControl(routeControl);
         }
+        const location = eventLocationInput.value.split(',').map(coord => coord.trim());
+        if (location.length === 2) {
+            routeControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(map.getCenter().lat, map.getCenter().lng),
+                    L.latLng(location[0], location[1])
+                ],
+                createMarker: function() { return null; },
+                routeWhileDragging: true
+            }).addTo(map);
+        }
+    }
 
-        routeControl = L.Routing.control({
-            waypoints: [
-                L.latLng(map.getCenter().lat, map.getCenter().lng),
-                L.latLng(lat, lng)
-            ],
-            createMarker: function() { return null; },
-            routeWhileDragging: true
-        }).addTo(map);
+    function handleFormSubmit(event) {
+        event.preventDefault();
+        addEvent(event);
+    }
+
+    eventForm.addEventListener("submit", handleFormSubmit);
+    addEventBtn.addEventListener("click", () => {
+        formTitle.textContent = "Add Event";
+        eventFormContainer.style.display = "block";
     });
+    cancelBtn.addEventListener("click", () => {
+        eventFormContainer.style.display = "none";
+        editEventId = null;
+    });
+    openGoogleMapsBtn.addEventListener("click", () => {
+        const location = eventLocationInput.value.split(',').map(coord => coord.trim());
+        if (location.length === 2) {
+            window.open(`https://www.google.com/maps?q=${location[0]},${location[1]}`, '_blank');
+        }
+    });
+    showRouteBtn.addEventListener("click", showRoute);
     currentLocationBtn.addEventListener("click", showCurrentLocation);
 
     searchInput.addEventListener("input", () => {
@@ -234,6 +247,8 @@ document.addEventListener("DOMContentLoaded", function() {
         displayEvents(filteredEvents);
     });
 
-    displayEvents(events);
+    // Initialize map and load events and news
     initMap();
+    displayEvents(events);
+    fetchNews();
 });
