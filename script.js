@@ -55,39 +55,51 @@ document.addEventListener("DOMContentLoaded", function() {
     // Показать текущее местоположение
     function showCurrentLocation() {
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(position => {
-                const { latitude: lat, longitude: lng } = position.coords;
+            navigator.geolocation.getCurrentPosition(position =>```javascript
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+
                 map.setView([lat, lng], 13);
-                L.marker([lat, lng]).addTo(map)
-                    .bindPopup("You are here")
+
+                if (currentMarker) {
+                    map.removeLayer(currentMarker);
+                }
+
+                currentMarker = L.marker([lat, lng]).addTo(map)
+                    .bindPopup(`Current Location: ${lat.toFixed(5)}, ${lng.toFixed(5)}`)
                     .openPopup();
+
+                eventLocationInput.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
             }, () => {
-                alert("Unable to retrieve your location.");
+                alert("Unable to retrieve your location");
             });
         } else {
-            alert("Geolocation is not supported by this browser.");
+            alert("Geolocation is not supported by this browser");
         }
     }
 
+    // Показать или скрыть форму событий
     function toggleEventForm() {
-        eventFormContainer.style.display = eventFormContainer.style.display === 'none' ? 'block' : 'none';
+        eventFormContainer.style.display = eventFormContainer.style.display === "none" ? "block" : "none";
     }
 
+    // Сохранить события в localStorage
     function saveEvents() {
         localStorage.setItem("events", JSON.stringify(events));
     }
 
+    // Отобразить события
     function displayEvents(events) {
         calendar.innerHTML = "";
         events.forEach(event => {
             const eventElement = document.createElement("div");
-            eventElement.className = "event";
+            eventElement.classList.add("event");
             eventElement.innerHTML = `
                 <h3>${event.title}</h3>
-                <p><strong>Date:</strong> ${event.date}</p>
-                <p><strong>Type:</strong> ${event.type}</p>
-                <p><strong>Description:</strong> ${event.description}</p>
-                <p><strong>Location:</strong> <a href="#" class="location-link" data-lat="${event.location.split(',')[0]}" data-lng="${event.location.split(',')[1]}">${event.location}</a></p>
+                <p>Date: ${event.date}</p>
+                <p>Type: ${event.type}</p>
+                <p>${event.description}</p>
+                <p>Location: <a href="#" class="location-link" data-lat="${event.location.split(',')[0]}" data-lng="${event.location.split(',')[1]}">${event.location}</a></p>
                 <div class="event-buttons">
                     <button class="edit-btn" data-id="${event.id}">Edit</button>
                     <button class="delete-btn" data-id="${event.id}">Delete</button>
