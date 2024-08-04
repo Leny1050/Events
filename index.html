@@ -5,22 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Calendar</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
     <header>
         <h1>Event Calendar</h1>
     </header>
     <main>
-        <section id="event-form-container" style="display: none;">
+        <section id="event-form-section">
             <h2 id="form-title">Add Event</h2>
             <form id="event-form">
                 <label for="event-title">Title:</label>
-                <input type="text" id="event-title" name="event-title" required>
+                <input type="text" id="event-title" required>
                 <label for="event-date">Date:</label>
-                <input type="date" id="event-date" name="event-date" required>
+                <input type="date" id="event-date" required>
                 <label for="event-type">Type:</label>
-                <select id="event-type" name="event-type" required>
+                <select id="event-type" required>
                     <option value="Concert">Concert</option>
                     <option value="Exhibition">Exhibition</option>
                     <option value="Festival">Festival</option>
@@ -28,9 +27,9 @@
                     <option value="Movie">Movie</option>
                 </select>
                 <label for="event-description">Description:</label>
-                <textarea id="event-description" name="event-description" required></textarea>
+                <textarea id="event-description" required></textarea>
                 <label for="event-location">Location (lat,lng):</label>
-                <input type="text" id="event-location" name="event-location" required>
+                <input type="text" id="event-location" required>
                 <button type="submit">Save Event</button>
                 <button type="button" id="cancel-btn">Cancel</button>
                 <button type="button" id="open-google-maps-btn">Open in Google Maps</button>
@@ -38,29 +37,26 @@
             </form>
         </section>
         <button id="add-event-btn">Add Event</button>
-        <div id="filters">
-            <label for="search">Search:</label>
-            <input type="text" id="search">
-            <label for="date-filter">Filter by Date:</label>
+        <section id="filters">
+            <input type="text" id="search" placeholder="Search events...">
             <select id="date-filter">
-                <option value="all">All</option>
+                <option value="all">All Dates</option>
             </select>
-            <label for="type-filter">Filter by Type:</label>
             <select id="type-filter">
-                <option value="all">All</option>
+                <option value="all">All Types</option>
                 <option value="Concert">Concert</option>
                 <option value="Exhibition">Exhibition</option>
                 <option value="Festival">Festival</option>
                 <option value="Marathon">Marathon</option>
                 <option value="Movie">Movie</option>
             </select>
-        </div>
+        </section>
         <section id="events-list"></section>
-        <section id="map-container">
-            <div id="map" style="height: 500px;"></div>
+        <section id="map-section">
+            <div id="map"></div>
             <button id="current-location-btn">Show Current Location</button>
         </section>
-        <section id="news-container">
+        <section id="news-section">
             <h2>Latest News</h2>
             <div id="news-list"></div>
         </section>
