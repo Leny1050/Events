@@ -19,8 +19,8 @@ document.addEventListener("DOMContentLoaded", function() {
     let editEventId = null;
     let map;
     let currentMarker = null;
-    let markers = [];
 
+    // Initialize map
     function initMap() {
         map = L.map('map').setView([0, 0], 2);
 
@@ -40,10 +40,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 .openPopup();
 
             eventLocationInput.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-            markers.push(currentMarker);
         });
     }
 
+    // Show current location
     function showCurrentLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(position => {
@@ -62,11 +62,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 eventLocationInput.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
             }, () => {
+                alert```javascript
                 alert("Unable to retrieve your location.");
             });
         } else {
-            alert("Geolocation is```javascript
-            not supported by this browser.");
+            alert("Geolocation is not supported by this browser.");
         }
     }
 
