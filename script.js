@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
-    let events = JSON.parse(localStorage.getItem("events")) || [];
+    const events = JSON.parse(localStorage.getItem("events")) || [];
     const calendar = document.getElementById("events-list");
     const searchInput = document.getElementById("search");
     const dateFilter = document.getElementById("date-filter");
@@ -15,11 +15,11 @@ document.addEventListener("DOMContentLoaded", function() {
     const currentLocationBtn = document.getElementById("current-location-btn");
     const newsContainer = document.getElementById("news-container");
     const newsList = document.getElementById("news-list");
+    const newsApiKey = '6ff76f15ddcd47168df8629e9c6e4164';
     let editEventId = null;
     let map;
     let currentMarker = null;
     let markers = [];
-    const newsApiKey = '6ff76f15ddcd47168df8629e9c6e4164';
 
     function initMap() {
         map = L.map('map').setView([0, 0], 2);
@@ -62,11 +62,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 eventLocationInput.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
             }, () => {
-                alert("Unable to```javascript
                 alert("Unable to retrieve your location.");
             });
         } else {
-            alert("Geolocation is not supported by this browser.");
+            alert("Geolocation is```javascript
+            not supported by this browser.");
         }
     }
 
