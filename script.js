@@ -1,22 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const events = JSON.parse(localStorage.getItem("events")) || [];
     const map = L.map('map').setView([0, 0], 2);
-    let currentMarker = null;
-    let routeControl = null;
+    const events = JSON.parse(localStorage.getItem("events")) || [];
     const newsApiKey = '6ff76f15ddcd47168df8629e9c6e4164';
-    const eventFormContainer = document.getElementById("event-form-section");
-    const eventForm = document.getElementById("event-form");
-    const formTitle = document.getElementById("form-title");
-    const addEventBtn = document.getElementById("add-event-btn");
-    const cancelBtn = document.getElementById("cancel-btn");
-    const openGoogleMapsBtn = document.getElementById("open-google-maps-btn");
-    const showRouteBtn = document.getElementById("show-route-btn");
-    const currentLocationBtn = document.getElementById("current-location-btn");
-    const searchInput = document.getElementById("search");
-    const dateFilter = document.getElementById("date-filter");
-    const typeFilter = document.getElementById("type-filter");
-    const eventsList = document.getElementById("events-list");
-    const newsList = document.getElementById("news-list");
+
+    let currentMarker = null;
+    let editEventId = null;
 
     // Initialize Leaflet Map
     function initMap() {
@@ -36,8 +24,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Display Events
     function displayEvents() {
+        const filteredEvents = filterEvents();
+        const eventsList = document.getElementById("events-list");
         eventsList.innerHTML = "";
-        events.forEach(event => {
+        filteredEvents.forEach(event => {
             const eventElement = document.createElement("div");
             eventElement.classList.add("event");
             eventElement.innerHTML = `
@@ -56,6 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Update Date Filter Options
         const dates = [...new Set(events.map(event => event.date))];
+        const dateFilter = document.getElementById("date-filter");
         dateFilter.innerHTML = '<option value="all">All Dates</option>';
         dates.forEach(date => {
             dateFilter.innerHTML += `<option value="${date}">${date}</option>`;
@@ -67,7 +58,6 @@ document.addEventListener("DOMContentLoaded", () => {
         event.preventDefault();
 
         const title = document.getElementById("event-title").value;
-       ```javascript
         const date = document.getElementById("event-date").value;
         const type = document.getElementById("event-type").value;
         const description = document.getElementById("event-description").value;
@@ -85,7 +75,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (editEventId !== null) {
             // Edit existing event
-            const eventIndex = events.findIndex(e => e.id === editEventId);
+            const eventIndex = events.findIndex(e => e.id```javascript
+            === editEventId);
             events[eventIndex] = eventData;
             editEventId = null;
         } else {
@@ -95,27 +86,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
         localStorage.setItem("events", JSON.stringify(events));
         displayEvents();
-        eventFormContainer.style.display = "none";
+        document.getElementById("event-form-section").style.display = "none";
     }
 
     // Edit Event
-    function editEvent(id) {
+    window.editEvent = function(id) {
         const event = events.find(e => e.id === id);
         document.getElementById("event-title").value = event.title;
         document.getElementById("event-date").value = event.date;
         document.getElementById("event-type").value = event.type;
         document.getElementById("event-description").value = event.description;
         document.getElementById("event-location").value = `${event.lat}, ${event.lng}`;
-        formTitle.textContent = "Edit Event";
-        eventFormContainer.style.display = "block";
+        document.getElementById("form-title").textContent = "Edit Event";
+        document.getElementById("event-form-section").style.display = "block";
         editEventId = id;
     }
 
     // Delete Event
-    function deleteEvent(id) {
-        events = events.filter(event => event.id !== id);
-        localStorage.setItem("events", JSON.stringify(events));
-        displayEvents();
+    window.deleteEvent = function(id) {
+        const confirmDelete = confirm("Are you sure you want to delete this event?");
+        if (confirmDelete) {
+            events = events.filter(event => event.id !== id);
+            localStorage.setItem("events", JSON.stringify(events));
+            displayEvents();
+        }
     }
 
     // Fetch News
@@ -124,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(response => response.json())
             .then(data => {
                 const articles = data.articles;
+                const newsList = document.getElementById("news-list");
                 newsList.innerHTML = "";
                 articles.forEach(article => {
                     const newsItem = document.createElement("div");
@@ -141,12 +136,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Show Route
     function showRoute() {
-        if (routeControl) {
-            map.removeControl(routeControl);
-        }
         const location = document.getElementById("event-location").value.split(',').map(coord => coord.trim());
         if (location.length === 2) {
-            routeControl = L.Routing.control({
+            L.Routing.control({
                 waypoints: [
                     L.latLng(map.getCenter().lat, map.getCenter().lng),
                     L.latLng(location[0], location[1])
@@ -154,6 +146,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 createMarker: function() { return null; },
                 routeWhileDragging: true
             }).addTo(map);
+        } else {
+            alert("Please enter a valid location.");
         }
     }
 
@@ -173,15 +167,29 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // Filter Events
+    function filterEvents() {
+        const searchTerm = document.getElementById("search").value.toLowerCase();
+        const dateFilter = document.getElementById("date-filter").value;
+        const typeFilter = document.getElementById("type-filter").value;
+
+        return events.filter(event => {
+            const matchSearch = event.title.toLowerCase().includes(searchTerm) || event.description.toLowerCase().includes(searchTerm);
+            const matchDate = dateFilter === "all" || event.date === dateFilter;
+            const matchType = typeFilter === "all" || event.type === typeFilter;
+            return matchSearch && matchDate && matchType;
+        });
+    }
+
     // Event Listeners
     document.getElementById("event-form").addEventListener("submit", addEvent);
     document.getElementById("add-event-btn").addEventListener("click", () => {
-        formTitle.textContent = "Add Event";
-        eventFormContainer.style.display = "block";
+        document.getElementById("form-title").textContent = "Add Event";
+        document.getElementById("event-form-section").style.display = "block";
         editEventId = null;
     });
     document.getElementById("cancel-btn").addEventListener("click", () => {
-        eventFormContainer.style.display = "none";
+        document.getElementById("event-form-section").style.display = "none";
         editEventId = null;
     });
     document.getElementById("open-google-maps-btn").addEventListener("click", () => {
@@ -192,28 +200,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     document.getElementById("show-route-btn").addEventListener("click", showRoute);
     document.getElementById("current-location-btn").addEventListener("click", showCurrentLocation);
-    document.getElementById("search").addEventListener("input", () => {
-        const searchTerm = document.getElementById("search").value.toLowerCase();
-        const filteredEvents = events.filter(event =>
-            event.title.toLowerCase().includes(searchTerm) ||
-            event.description.toLowerCase().includes(searchTerm)
-        );
-        displayEvents(filteredEvents);
-    });
-    document.getElementById("date-filter").addEventListener("change", () => {
-        const filterValue = document.getElementById("date-filter").value;
-        const filteredEvents = filterValue === "all"
-            ? events
-            : events.filter(event => event.date === filterValue);
-        displayEvents(filteredEvents);
-    });
-    document.getElementById("type-filter").addEventListener("change", () => {
-        const filterValue = document.getElementById("type-filter").value;
-        const filteredEvents = filterValue === "all"
-            ? events
-            : events.filter(event => event.type === filterValue);
-        displayEvents(filteredEvents);
-    });
+    document.getElementById("search").addEventListener("input", () => displayEvents());
+    document.getElementById("date-filter").addEventListener("change", () => displayEvents());
+    document.getElementById("type-filter").addEventListener("change", () => displayEvents());
 
     // Initialize
     initMap();
