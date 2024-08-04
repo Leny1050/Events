@@ -7,18 +7,30 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>Event Calendar</h1>
-    </header>
-    <main>
-        <section id="event-form-section">
+    <div id="main-container">
+        <header>
+            <h1>Event Calendar</h1>
+        </header>
+        <section id="controls">
+            <input type="text" id="search" placeholder="Search events">
+            <select id="date-filter">
+                <option value="all">All Dates</option>
+                <!-- Add more date options as needed -->
+            </select>
+            <select id="type-filter">
+                <option value="all">All Types</option>
+                <!-- Add more event types as needed -->
+            </select>
+            <button id="add-event-btn">Add Event</button>
+        </section>
+        <section id="events-list">
+            <!-- Events will be displayed here -->
+        </section>
+        <section id="event-form-container" style="display: none;">
             <h2 id="form-title">Add Event</h2>
             <form id="event-form">
-                <label for="event-title">Title:</label>
-                <input type="text" id="event-title" required>
-                <label for="event-date">Date:</label>
+                <input type="text" id="event-title" placeholder="Event Title" required>
                 <input type="date" id="event-date" required>
-                <label for="event-type">Type:</label>
                 <select id="event-type" required>
                     <option value="Concert">Concert</option>
                     <option value="Exhibition">Exhibition</option>
@@ -26,42 +38,23 @@
                     <option value="Marathon">Marathon</option>
                     <option value="Movie">Movie</option>
                 </select>
-                <label for="event-description">Description:</label>
-                <textarea id="event-description" required></textarea>
-                <label for="event-location">Location (lat,lng):</label>
-                <input type="text" id="event-location" readonly>
-                <button type="submit">Save Event</button>
-                <button type="button" id="cancel-btn">Cancel</button>
-                <button type="button" id="open-google-maps-btn">Open in Google Maps</button>
-                <button type="button" id="show-route-btn">Show Route</button>
+                <textarea id="event-description" placeholder="Event Description" required></textarea>
+                <input type="text" id="event-location" placeholder="Event Location" required>
+                <div class="map-controls">
+                    <button type="button" id="open-google-maps-btn">Open in Google Maps</button>
+                    <button type="button" id="show-route-btn">Show Route</button>
+                    <button type="button" id="current-location-btn">Show Current Location</button>
+                </div>
+                <div id="map"></div>
+                <div class="form-buttons">
+                    <button type="submit">Save Event</button>
+                    <button type="button" id="cancel-btn">Cancel</button>
+                </div>
             </form>
         </section>
-        <button id="add-event-btn">Add Event</button>
-        <section id="filters">
-            <input type="text" id="search" placeholder="Search events...">
-            <select id="date-filter">
-                <option value="all">All Dates</option>
-            </select>
-            <select id="type-filter">
-                <option value="all">All Types</option>
-                <option value="Concert">Concert</option>
-                <option value="Exhibition">Exhibition</option>
-                <option value="Festival">Festival</option>
-                <option value="Marathon">Marathon</option>
-                <option value="Movie">Movie</option>
-            </select>
-        </section>
-        <section id="events-list"></section>
-        <section id="map-section">
-            <div id="map"></div>
-            <button id="current-location-btn">Show Current Location</button>
-        </section>
-        <section id="news-section">
-            <h2>Latest News</h2>
-            <div id="news-list"></div>
-        </section>
-    </main>
+    </div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
     <script src="script.js"></script>
 </body>
