@@ -19,8 +19,6 @@ document.addEventListener("DOMContentLoaded", function() {
     let map;
     let currentMarker = null;
     let markers = [];
-    let geocoder;
-    let routeControl;
     const newsApiKey = '6ff76f15ddcd47168df8629e9c6e4164';
 
     function initMap() {
@@ -29,9 +27,6 @@ document.addEventListener("DOMContentLoaded", function() {
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
-
-        geocoder = L.Control.Geocoder.nominatim();
-        L.Control.geocoder().addTo(map);
 
         map.on('click', function(e) {
             const { lat, lng } = e.latlng;
@@ -67,13 +62,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 eventLocationInput.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
             }, () => {
-                alert("Unable to retrieve your location");
+                alert("Unable to```javascript
+                alert("Unable to retrieve your location.");
             });
         } else {
-            alert("Geolocation is not supported by this browser");
-       ### Продолжение JavaScript
-
-```javascript
+            alert("Geolocation is not supported by this browser.");
         }
     }
 
