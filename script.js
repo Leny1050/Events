@@ -87,156 +87,148 @@ document.addEventListener("DOMContentLoaded", function() {
                 <p><strong>Date:</strong> ${event.date}</p>
                 <p><strong>Type:</strong> ${event.type}</p>
                 <p><strong>Description:</strong> ${event.description}</p>
-                <p><strong>Location:</strong> ${event.location}</p>
+                <p><strong>Location:</strong> <a href="#" class="location-link" data-lat="${event.location.split(',')[0]}" data-lng="${event.location.split(',')[1]}">${event.location}</a></p>
                 <div class="event-buttons">
-                    <button class="edit-btn" onclick="editEvent(${event.id})">Edit</button>
-                    <button class="delete-btn" onclick="deleteEvent(${event.id})">Delete</button>
+                    <button class="edit-btn" data-id="${event.id}">Edit</button>
+                    <button class="delete-btn" data-id="${event.id}">Delete</button>
                 </div>
             `;
             calendar.appendChild(eventElement);
         });
+
+        document.querySelectorAll(".delete-btn").forEach(btn => {
+            btn.addEventListener("click", deleteEvent);
+        });
+
+        document.querySelectorAll(".edit-btn").forEach(btn => {
+            btn.addEventListener("click", editEvent);
+        });
+
+        document.querySelectorAll(".location-link").forEach(link => {
+            link.addEventListener("click", showEventOnMap);
+        });
     }
 
-    function editEvent(id) {
-        const event = events.find(event => event.id === id);
-        if (event) {
-            editEventId = id;
+    function addEvent(event) {
+        event.preventDefault();
+        const newEvent = {
+            id: editEventId || Date.now(),
+            title: eventForm["event-title"].value,
+            date: eventForm["event-date"].value,
+            type: eventForm["event-type"].value,
+            description: eventForm["event-description"].value,
+            location: eventForm["event-location"].value,
+        };
+
+        if (editEventId) {
+            events = events.map(ev => ev.id === editEventId ? newEvent : ev);
+            editEventId = null;
+        } else {
+            events.push(newEvent);
+        }
+
+        saveEvents();
+        displayEvents(events);
+        eventForm.reset();
+        toggleEventForm();
+    }
+
+    function deleteEvent(event) {
+        const eventId = parseInt(event.target.dataset.id, 10);
+        events = events.filter(ev => ev.id !== eventId);
+        saveEvents();
+        displayEvents(events);
+    }
+
+    function editEvent(event) {
+        const eventId = parseInt(event.target.dataset.id, 10);
+        const eventToEdit = events.find(ev => ev.id === eventId);
+
+        if (eventToEdit) {
             formTitle.textContent = "Edit Event";
-            document.getElementById("event-title").value = event.title;
-            document.getElementById("event-date").value = event.date;
-            document.getElementById("event-type").value = event.type;
-            document.getElementById("event-description").value = event.description;
-            document.getElementById("event-location").value = event.location;
+            eventForm["event-title"].value = eventToEdit.title;
+            eventForm["event-date"].value = eventToEdit.date;
+            eventForm["event-type"].value = eventToEdit.type;
+            eventForm["event-description"].value = eventToEdit.description;
+            eventForm["event-location"].value = eventToEdit.location;
+
+            editEventId = eventToEdit.id;
             toggleEventForm();
         }
     }
 
-    function deleteEvent(id) {
-        const index = events.findIndex(event => event.id === id);
-        if (index !== -1) {
-            events.splice(index, 1);
-            saveEvents();
-            displayEvents(events);
-        }
-    }
+    function showEventOnMap(event) {
+        event.preventDefault();
+        const lat = parseFloat(event.target.dataset.lat);
+        const lng = parseFloat(event.target.dataset.lng);
+        map.setView([lat, lng], 13);
 
-    function updateEvent(id) {
-        const title = document.getElementById("event-title").value;
-        const date = document.getElementById("event-date").value;
-        const type = document.getElementById("event-type").value;
-        const description = document.getElementById("event-description").value;
-        const location = document.getElementById("event-location").value;
-
-        const event = events.find(e => e.id === id);
-        if (event) {
-            event.title = title;
-            event.date = date;
-            event.type = type;
-            event.description = description;
-            event.location = location;
-            saveEvents();
-            displayEvents(events);
-        }
-        toggleEventForm();
-    }
-
-    function addEvent() {
-        const title = document.getElementById("event-title").value;
-        const date = document.getElementById("event-date").value;
-        const type = document.getElementById("event-type").value;
-        const description = document.getElementById("event-description").value;
-        const location = document.getElementById("event-location").value;
-
-        const newEvent = {
-            id: events.length + 1,
-            title,
-            date,
-            type,
-            description,
-            location
-        };
-
-        events.push(newEvent);
-        saveEvents();
-        displayEvents(events);
-        toggleEventForm();
-    }
-
-    function filterEvents() {
-        const searchQuery = searchInput.value.toLowerCase();
-        const selectedDate = dateFilter.value;
-        const selectedType = typeFilter.value;
-
-        const filteredEvents = events.filter(event => {
-            const matchesSearch = event.title.toLowerCase().includes(searchQuery) || event.description.toLowerCase().includes(searchQuery);
-            const matchesDate = selectedDate === "all" || event.date === selectedDate;
-            const matchesType = selectedType === "all" || event.type === selectedType;
-
-            return matchesSearch && matchesDate && matchesType;
-        });
-
-        displayEvents(filteredEvents);
-    }
-
-    function openInGoogleMaps() {
-        const location = document.getElementById("event-location").value;
-        if (location) {
-            const [lat, lng] = location.split(',').map(Number);
-            const url = `https://www.google.com/maps?q=${lat},${lng}`;
-            window.open(url, '_blank');
-        }
-    }
-
-    function showRoute() {
-        // Remove previous route
-        if (routeControl) {
-            routeControl.remove();
+        if (currentMarker) {
+            map.removeLayer(currentMarker);
         }
 
-        // Check if there are at least two markers
-        if (markers.length >= 2) {
-            const waypoints = markers.map(marker => marker.getLatLng());
-            routeControl = L.Routing.control({
-                waypoints: waypoints,
-                routeWhileDragging: true
-            }).addTo(map);
-        } else {
-            alert("Please add at least two markers to show a route.");
-        }
+        currentMarker = L.marker([lat, lng]).addTo(map)
+            .bindPopup(`Location: ${lat.toFixed(5)}, ${lng.toFixed(5)}`)
+            .openPopup();
     }
 
-    addEventBtn.addEventListener("click", function() {
-        editEventId = null;
+    addEventBtn.addEventListener("click", () => {
         formTitle.textContent = "Add Event";
-        document.getElementById("event-form").reset();
+        eventForm.reset();
         toggleEventForm();
     });
 
-    cancelBtn.addEventListener("click", function() {
-        toggleEventForm();
+    cancelBtn.addEventListener("click", toggleEventForm);
+    eventForm.addEventListener("submit", addEvent);
+    openGoogleMapsBtn.addEventListener("click", () => {
+        const location = eventForm["event-location"].value;
+        window.open(`https://www.google.com/maps/search/?api=1&query=${location}`, '_blank');
     });
+    showRouteBtn.addEventListener("click", () => {
+        const location = eventForm["event-location"].value.split(',');
+        const lat = parseFloat(location[0]);
+        const lng = parseFloat(location[1]);
 
-    openGoogleMapsBtn.addEventListener("click", openInGoogleMaps);
-    showRouteBtn.addEventListener("click", showRoute);
+        if (routeControl) {
+            map.removeControl(routeControl);
+        }
+
+        routeControl = L.Routing.control({
+            waypoints: [
+                L.latLng(map.getCenter().lat, map.getCenter().lng),
+                L.latLng(lat, lng)
+            ],
+            createMarker: function() { return null; },
+            routeWhileDragging: true
+        }).addTo(map);
+    });
     currentLocationBtn.addEventListener("click", showCurrentLocation);
 
-    eventForm.addEventListener("submit", function(e) {
-        e.preventDefault();
-        if (editEventId !== null) {
-            updateEvent(editEventId);
-        } else {
-            addEvent();
-        }
+    searchInput.addEventListener("input", () => {
+        const searchTerm = searchInput.value.toLowerCase();
+        const filteredEvents = events.filter(event =>
+            event.title.toLowerCase().includes(searchTerm) ||
+            event.description.toLowerCase().includes(searchTerm)
+        );
+        displayEvents(filteredEvents);
     });
 
-    searchInput.addEventListener("input", filterEvents);
-    dateFilter.addEventListener("change", filterEvents);
-    typeFilter.addEventListener("change", filterEvents);
+    dateFilter.addEventListener("change", () => {
+        const filterValue = dateFilter.value;
+        const filteredEvents = filterValue === "all"
+            ? events
+            : events.filter(event => event.date === filterValue);
+        displayEvents(filteredEvents);
+    });
 
-    // Инициализация карты
-    initMap();
+    typeFilter.addEventListener("change", () => {
+        const filterValue = typeFilter.value;
+        const filteredEvents = filterValue === "all"
+            ? events
+            : events.filter(event => event.type === filterValue);
+        displayEvents(filteredEvents);
+    });
 
-    // Отображение событий при загрузке страницы
     displayEvents(events);
+    initMap();
 });
-
