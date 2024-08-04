@@ -8,14 +8,15 @@ header {
     background-color: #4CAF50;
     color: white;
     text-align: center;
-    padding: 15px 0;
+    padding: 15px;
 }
 
 main {
     padding: 20px;
 }
 
-#event-form-container {
+#event-form-section {
+    display: none;
     margin-bottom: 20px;
 }
 
@@ -23,16 +24,14 @@ form {
     display: flex;
     flex-direction: column;
     max-width: 600px;
-    margin: 0 auto;
+    margin: auto;
 }
 
 form label {
     margin: 10px 0 5px;
 }
 
-form input,
-form select,
-form textarea {
+form input, form select, form textarea {
     margin-bottom: 10px;
     padding: 8px;
     font-size: 16px;
@@ -86,19 +85,19 @@ button:hover {
     margin: 5px 0;
 }
 
-.event .event-buttons {
-    margin-top: 10px;
-}
-
 .event .event-buttons button {
     margin-right: 5px;
 }
 
-#map-container {
+#map-section {
     margin-top: 20px;
 }
 
-#news-container {
+#map {
+    height: 500px;
+}
+
+#news-section {
     margin-top: 20px;
 }
 
@@ -126,4 +125,10 @@ button:hover {
 
 .news-item a {
     color: #4CAF50;
+}
+
+@media (max-width: 768px) {
+    #map {
+        height: 300px;
+    }
 }
